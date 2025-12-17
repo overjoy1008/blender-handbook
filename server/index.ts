@@ -1,13 +1,19 @@
 import express from 'express';
 import cors from 'cors';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { query } from './db';
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 const PORT = process.env.PORT || 3001;
 
 app.use(cors());
 // Fix: Added 'as any' cast to resolve 'NextHandleFunction' vs 'PathParams' type mismatch in certain TS environments
 app.use(express.json() as any);
+
+// Serve static files from dist folder (built frontend)
+app.use(express.static(path.join(__dirname, '../dist')));
 
 // --- CATEGORIES ---
 app.get('/api/categories', async (req, res) => {
@@ -140,6 +146,11 @@ app.patch('/api/todo/:id/toggle', async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: 'Failed to toggle todo' });
   }
+});
+
+// Catch-all route for SPA - serve index.html for any non-API routes
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../dist/index.html'));
 });
 
 app.listen(PORT, () => {
