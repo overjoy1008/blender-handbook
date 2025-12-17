@@ -149,7 +149,7 @@ app.patch('/api/todo/:id/toggle', async (req, res) => {
 });
 
 // Catch-all route for SPA - serve index.html for any non-API routes
-app.get('*', (req, res) => {
+app.use((req, res) => {
   res.sendFile(path.join(__dirname, '../dist/index.html'));
 });
 
